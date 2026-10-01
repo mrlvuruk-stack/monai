@@ -1,0 +1,73 @@
+default_language_version:
+  python: python3
+
+default_install_hook_types: [pre-commit, commit-msg]
+
+ci:
+  autofix_prs: true
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit suggestions'
+  autoupdate_schedule: quarterly
+  # submodules: true
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-ast
+      - id: check-yaml
+      - id: check-docstring-first
+      - id: check-executables-have-shebangs
+      - id: check-toml
+      - id: check-case-conflict
+      - id: check-illegal-windows-names
+      - id: check-added-large-files
+        args: ['--maxkb=1024']
+      - id: detect-private-key
+      - id: forbid-new-submodules
+      - id: pretty-format-json
+        args: ['--autofix', '--no-sort-keys', '--indent=4']
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.5
+    hooks:
+    -   id: ruff-check
+        args: ["--fix"]
+        exclude: |
+          (?x)(
+              ^versioneer.py|
+              ^monai/_version.py
+          )
+
+  - repo: https://github.com/psf/black-pre-commit-mirror
+    rev: 26.5.1  # Black version, keep synced with MONAI requirements
+    hooks:
+      - id: black
+        language_version: python3
+        # black will be given individual file names and so will ignore the excludes in pyproject.toml
+        exclude: |
+          (?x)(
+              ^versioneer.py|
+              ^monai/_version.py
+          )
+
+  - repo: https://github.com/pycqa/isort
+    rev: 9.0.1  # isort version, keep synced with MONAI requirements
+    hooks:
+      - id: isort
+        name: isort (python)
+        exclude: |
+          (?x)(
+              ^versioneer.py|
+              ^monai/_version.py
+          )
+  - repo: local
+    hooks:
+      - id: dco
+        name: DCO sign-off
+        entry: .github/hooks/check-dco.sh
+        language: script
+        stages: [commit-msg]
